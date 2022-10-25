@@ -111,13 +111,14 @@ export default function Dashboard() {
                         </div>
 
                         <div>
-                            <a href="https://d-frame-user-dashboard.vercel.app/Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
+                            {/* <a href="https://d-frame-user-dashboard.vercel.app/Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
                                 <div className='icons'>
                                     <img src={wallet} alt="Wallet Icon" className="reactIcons" />
                                     <p className='reactText'>Wallet</p>
                                     <IoChevronForwardOutline size={23} className='reactArrow' />
                                 </div>
-                            </a>
+                            </a> */}
+                            <button onClick={() => chrome.tabs.create({ url: 'popup.html' })}>Dashboard</button>
                         </div>
 
                         <div>
