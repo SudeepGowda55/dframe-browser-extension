@@ -91,6 +91,7 @@ function buildTypedUrlList(wallet_address) {
 }
 
 var urlMap = {}
+var blocked_sites = ["https://d-frame-user-dashboard.vercel.app", "https://auth.magic.link"]
 
 /*
 events list -
@@ -156,12 +157,14 @@ chrome.webRequest.onBeforeRequest.addListener(async (details) => {
                     time_on_site: urlMap[details.initiator]["time_on_site"],
                 }
             } else {
-                urlMap[details.initiator] = {
-                    id: details.requestId,
-                    tab_id: details.tabId,
-                    type: details.type,
-                    timeStamp: details.timeStamp,
-                    time_on_site: 0,
+                if (!blocked_sites.includes(details.initiator)) {
+                    urlMap[details.initiator] = {
+                        id: details.requestId,
+                        tab_id: details.tabId,
+                        type: details.type,
+                        timeStamp: details.timeStamp,
+                        time_on_site: 0,
+                    }
                 }
             }
         }
