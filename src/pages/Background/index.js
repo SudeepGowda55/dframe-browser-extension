@@ -135,24 +135,38 @@ Cookie interseption to update cookie midway before reaching website
 */
 
 // let geolocation = window.navigator.geolocation() ? window.navigator.geolocation.getCurrentPosition() : {}
-
-chrome.webRequest.onBeforeRequest.addListener((details) => {
-    console.log("here")
-    // console.log("details", { initiator: details.initiator, id: details.requestId, tab_id: details.tabId, type: details.type, timestamp: details.timeStamp })
-    if (urlMap[details.initiator]) {
-        urlMap[details.initiator]["time_on_site"] = urlMap[details.initiator]["time_on_site"] + ((details.timeStamp) - urlMap[details.initiator]["timeStamp"])
-        urlMap[details.initiator]["timeStamp"] = details.timeStamp
-    } else {
-        urlMap[details.initiator] = {
-            id: details.requestId,
-            tab_id: details.tabId,
-            type: details.type,
-            timeStamp: details.timeStamp,
-            time_on_site: 0,
+async function getCurrentTab() {
+    let queryOptions = { active: true, lastFocusedWindow: true };
+    // `tab` will either be a `tabs.Tab` instance or `undefined`.
+    let [tab] = chrome.tabs.query(queryOptions);
+    return tab;
+}
+chrome.webRequest.onBeforeRequest.addListener(async (details) => {
+    chrome.tabs.query({ active: true }, ([tab]) => {
+        if (urlMap[details.initiator] && details.tabId == tab.id) {
+            urlMap[details.initiator]["time_on_site"] = urlMap[details.initiator]["time_on_site"] + ((details.timeStamp) - urlMap[details.initiator]["timeStamp"])
+            urlMap[details.initiator]["timeStamp"] = details.timeStamp
+        } else {
+            if (urlMap[details.initiator]) {
+                urlMap[details.initiator] = {
+                    id: details.requestId,
+                    tab_id: details.tabId,
+                    type: details.type,
+                    timeStamp: details.timeStamp,
+                    time_on_site: urlMap[details.initiator]["time_on_site"],
+                }
+            } else {
+                urlMap[details.initiator] = {
+                    id: details.requestId,
+                    tab_id: details.tabId,
+                    type: details.type,
+                    timeStamp: details.timeStamp,
+                    time_on_site: 0,
+                }
+            }
         }
-    }
-    console.log(urlMap)
-    //que_arr = [...urlMap]
+        console.log(urlMap)
+    })
 }, { urls: ['https://*/*', 'http://*/*'], types: ["xmlhttprequest", "object", "sub_frame"] }, ['extraHeaders', 'requestBody'])
 
 chrome.webRequest.onErrorOccurred.addListener((details) => {
