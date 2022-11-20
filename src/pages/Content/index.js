@@ -6,10 +6,10 @@ console.log('Must reload extension for modifications to take effect.');
 printLine("Using the 'printLine' function from the Print Module");
 
 var CronJob = require('cron').CronJob;
-// trigger on every second, 10, 20, 30, 40, 50, 00
+// trigger on every 10th second, 10, 20, 30, 40, 50, 00
 const pattern = '*/10 * * * * *';
-// trigger every 5 minutes
-const pattern2 = '5 * * * *';
+// trigger every 60 minutes
+const pattern2 = '0 * * * *';
 
 
 /*
@@ -50,6 +50,9 @@ function messagePageScript() {
                     continue;
                 }
                 mod_response[key]["geolocation"] = geoLocation
+                if (mod_response[key]["time_on_site"] == 0) {
+                    delete mod_response[key]
+                }
             }
             window.postMessage({
                 direction: "from-content-script",
