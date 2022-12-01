@@ -117,8 +117,8 @@ export default function Dashboard() {
                                     <p className='reactText'>Wallet</p>
                                     <IoChevronForwardOutline size={23} className='reactArrow' />
                                 </div>
-                            </a> */}
-                            <button onClick={() => chrome.tabs.create({ url: 'popup.html' })}>Wallet</button>
+                            </a>
+                            {/*<button onClick={() => chrome.tabs.create({ url: 'newtab.html' })}>Dashboard</button>*/}
                         </div>
 
                         <div>
