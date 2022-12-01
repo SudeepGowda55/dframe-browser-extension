@@ -144,7 +144,10 @@ async function getCurrentTab() {
 }
 chrome.webRequest.onBeforeRequest.addListener(async (details) => {
     chrome.tabs.query({ active: true }, ([tab]) => {
-        if (urlMap[details.initiator] && details.tabId == tab.id) {
+        let url = new URL(tab.url)
+        let active_tab_base_url = `${url.protocol}//${url.hostname}`
+        console.log("active tab", active_tab_base_url)
+        if (urlMap[details.initiator] && details.tabId == tab.id && details.initiator == active_tab_base_url) {
             urlMap[details.initiator]["time_on_site"] = urlMap[details.initiator]["time_on_site"] + ((details.timeStamp) - urlMap[details.initiator]["timeStamp"])
             urlMap[details.initiator]["timeStamp"] = details.timeStamp
         } else {
