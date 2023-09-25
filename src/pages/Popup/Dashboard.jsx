@@ -1,6 +1,6 @@
 import { Magic } from 'magic-sdk';
 // import secrets from '../../secrets/secrets.development';
-export const magic = new Magic(process.env.REACT_APP_MAGIC_PUBLISHABLE_KEY);
+export const magic = new Magic("pk_live_C978F3A837C4396C");
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import React, { useEffect, useState, useCallback } from 'react';

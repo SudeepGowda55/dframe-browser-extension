@@ -5,93 +5,106 @@
 // Search history to find up to ten links that a user has typed in,
 // and show those links in a popup.
 function buildTypedUrlList(wallet_address) {
-    // To look for history items visited in the last week,
-    // subtract a week of microseconds from the current time.
-    console.log("reached here")
-    var microsecondsPerHour = 1000 * 60;
-    var oneHourAgo = (new Date).getTime() - microsecondsPerHour;
+  // To look for history items visited in the last week,
+  // subtract a week of microseconds from the current time.
+  console.log('reached here');
+  var microsecondsPerHour = 1000 * 60;
+  var oneHourAgo = new Date().getTime() - microsecondsPerHour;
 
-    // Track the number of callbacks from chrome.history.getVisits()
-    // that we expect to get.  When it reaches zero, we have all results.
-    var numRequestsOutstanding = 0;
+  // Track the number of callbacks from chrome.history.getVisits()
+  // that we expect to get.  When it reaches zero, we have all results.
+  var numRequestsOutstanding = 0;
 
-    chrome.history.search({
-        'text': '',              // Return every history item....
-        'startTime': oneHourAgo  // that was accessed less than one week ago.
+  chrome.history.search(
+    {
+      text: '', // Return every history item....
+      startTime: oneHourAgo, // that was accessed less than one week ago.
     },
-        function (historyItems) {
-            // For each history item, get details on all visits.
-            for (var i = 0; i < historyItems.length; ++i) {
-                var url = historyItems[i].url;
-                var processVisitsWithUrl = function (url) {
-                    // We need the url of the visited item to process the visit.
-                    // Use a closure to bind the  url into the callback's args.
-                    return function (visitItems) {
-                        processVisits(url, visitItems);
-                    };
-                };
-                chrome.history.getVisits({ url: url }, processVisitsWithUrl(url));
-                numRequestsOutstanding++;
-            }
-            if (!numRequestsOutstanding) {
-                onAllVisitsProcessed();
-            }
-        }
-    );
+    function (historyItems) {
+      // For each history item, get details on all visits.
+      for (var i = 0; i < historyItems.length; ++i) {
+        var url = historyItems[i].url;
+        var processVisitsWithUrl = function (url) {
+          // We need the url of the visited item to process the visit.
+          // Use a closure to bind the  url into the callback's args.
+          return function (visitItems) {
+            processVisits(url, visitItems);
+          };
+        };
+        chrome.history.getVisits({ url: url }, processVisitsWithUrl(url));
+        numRequestsOutstanding++;
+      }
+      if (!numRequestsOutstanding) {
+        onAllVisitsProcessed();
+      }
+    }
+  );
 
+  // Maps URLs to a count of the number of times the user typed that URL into
+  // the omnibox.
+  var urlToCount = {};
 
-    // Maps URLs to a count of the number of times the user typed that URL into
-    // the omnibox.
-    var urlToCount = {};
+  // Callback for chrome.history.getVisits().  Counts the number of
+  // times a user visited a URL by typing the address.
+  var processVisits = function (url, visitItems) {
+    for (var i = 0, ie = visitItems.length; i < ie; ++i) {
+      // Ignore items unless the user typed the URL.
+      // if (visitItems[i].transition != 'typed') {
+      //     continue;
+      // }
 
-    // Callback for chrome.history.getVisits().  Counts the number of
-    // times a user visited a URL by typing the address.
-    var processVisits = function (url, visitItems) {
-        for (var i = 0, ie = visitItems.length; i < ie; ++i) {
-            // Ignore items unless the user typed the URL.
-            // if (visitItems[i].transition != 'typed') {
-            //     continue;
-            // }
+      if (!urlToCount[url]) {
+        urlToCount[url] = 0;
+      }
 
-            if (!urlToCount[url]) {
-                urlToCount[url] = 0;
-            }
+      urlToCount[url]++;
+    }
 
-            urlToCount[url]++;
-        }
+    // If this is the final outstanding call to processVisits(),
+    // then we have the final results.  Use them to build the list
+    // of URLs to show in the popup.
+    if (!--numRequestsOutstanding) {
+      onAllVisitsProcessed();
+    }
+  };
 
-        // If this is the final outstanding call to processVisits(),
-        // then we have the final results.  Use them to build the list
-        // of URLs to show in the popup.
-        if (!--numRequestsOutstanding) {
-            onAllVisitsProcessed();
-        }
-    };
+  // This function is called when we have the final list of URls to display.
+  var onAllVisitsProcessed = async function () {
+    // Get the top scorring urls.
+    let urlArray = [];
+    for (var url in urlToCount) {
+      urlArray.push(url);
+    }
 
-    // This function is called when we have the final list of URls to display.
-    var onAllVisitsProcessed = async function () {
-        // Get the top scorring urls.
-        let urlArray = [];
-        for (var url in urlToCount) {
-            urlArray.push(url);
-        }
-
-        // Sort the URLs by the number of times the user typed them.
-        urlArray.sort(function (a, b) {
-            return urlToCount[b] - urlToCount[a];
-        });
-        console.log(urlArray)
-        if (urlArray.length > 0) {
-            console.log(urlArray)
-            let data = await fetch("http://54.167.69.158:3001/api/user/dataPostAPI", { method: 'POST', body: JSON.stringify({ publicAddress: wallet_address, data: urlArray }), headers: { 'Content-Type': 'application/json' } })
-            console.log(data)
-        }
-
-    };
+    // Sort the URLs by the number of times the user typed them.
+    urlArray.sort(function (a, b) {
+      return urlToCount[b] - urlToCount[a];
+    });
+    console.log(urlArray);
+    if (urlArray.length > 0) {
+      console.log(urlArray);
+      let data = await fetch('http://54.167.69.158:3001/api/user/dataPostAPI', {
+        method: 'POST',
+        body: JSON.stringify({ publicAddress: wallet_address, data: urlArray }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const urlArrayy = [
+        {
+          urlLink: 'google.com',
+          tags: ['google', 'crypto'],
+        },
+      ];
+      storeDataInLocalStorage(urlArrayy);
+      console.log(data);
+    }
+  };
 }
 
-var urlMap = {}
-var blocked_sites = ["https://d-frame-user-dashboard.vercel.app", "https://auth.magic.link"]
+var urlMap = {};
+var blocked_sites = [
+  'https://d-frame-user-dashboard.vercel.app',
+  'https://auth.magic.link',
+];
 
 /*
 events list -
@@ -137,54 +150,116 @@ Cookie interseption to update cookie midway before reaching website
 
 // let geolocation = window.navigator.geolocation() ? window.navigator.geolocation.getCurrentPosition() : {}
 async function getCurrentTab() {
-    let queryOptions = { active: true, lastFocusedWindow: true };
-    // `tab` will either be a `tabs.Tab` instance or `undefined`.
-    let [tab] = chrome.tabs.query(queryOptions);
-    return tab;
+  let queryOptions = { active: true, lastFocusedWindow: true };
+  // `tab` will either be a `tabs.Tab` instance or `undefined`.
+  let [tab] = chrome.tabs.query(queryOptions);
+  return tab;
 }
-chrome.webRequest.onBeforeRequest.addListener(async (details) => {
+chrome.webRequest.onBeforeRequest.addListener(
+  async (details) => {
     chrome.tabs.query({ active: true }, ([tab]) => {
-        let url = new URL(tab.url)
-        let active_tab_base_url = `${url.protocol}//${url.hostname}`
-        console.log("active tab", active_tab_base_url)
-        if (urlMap[details.initiator] && details.tabId == tab.id && details.initiator == active_tab_base_url) {
-            urlMap[details.initiator]["time_on_site"] = urlMap[details.initiator]["time_on_site"] + ((details.timeStamp) - urlMap[details.initiator]["timeStamp"])
-            urlMap[details.initiator]["timeStamp"] = details.timeStamp
+      let url = new URL(tab.url);
+      let active_tab_base_url = `${url.protocol}//${url.hostname}`;
+      console.log('active tab', active_tab_base_url);
+      if (
+        urlMap[details.initiator] &&
+        details.tabId == tab.id &&
+        details.initiator == active_tab_base_url
+      ) {
+        urlMap[details.initiator]['time_on_site'] =
+          urlMap[details.initiator]['time_on_site'] +
+          (details.timeStamp - urlMap[details.initiator]['timeStamp']);
+        urlMap[details.initiator]['timeStamp'] = details.timeStamp;
+      } else {
+        if (urlMap[details.initiator]) {
+          urlMap[details.initiator] = {
+            id: details.requestId,
+            tab_id: details.tabId,
+            type: details.type,
+            timeStamp: details.timeStamp,
+            time_on_site: urlMap[details.initiator]['time_on_site'],
+          };
         } else {
-            if (urlMap[details.initiator]) {
-                urlMap[details.initiator] = {
-                    id: details.requestId,
-                    tab_id: details.tabId,
-                    type: details.type,
-                    timeStamp: details.timeStamp,
-                    time_on_site: urlMap[details.initiator]["time_on_site"],
-                }
-            } else {
-                if (!blocked_sites.includes(details.initiator)) {
-                    urlMap[details.initiator] = {
-                        id: details.requestId,
-                        tab_id: details.tabId,
-                        type: details.type,
-                        timeStamp: details.timeStamp,
-                        time_on_site: 0,
-                    }
-                }
-            }
+          if (!blocked_sites.includes(details.initiator)) {
+            urlMap[details.initiator] = {
+              id: details.requestId,
+              tab_id: details.tabId,
+              type: details.type,
+              timeStamp: details.timeStamp,
+              time_on_site: 0,
+            };
+          }
         }
-        console.log(urlMap)
-    })
-}, { urls: ['https://*/*', 'http://*/*'], types: ["xmlhttprequest", "object", "sub_frame"] }, ['extraHeaders', 'requestBody'])
+      }
+      console.log(urlMap);
+    });
+  },
+  {
+    urls: ['https://*/*', 'http://*/*'],
+    types: ['xmlhttprequest', 'object', 'sub_frame'],
+  },
+  ['extraHeaders', 'requestBody']
+);
 
-chrome.webRequest.onErrorOccurred.addListener((details) => {
-    console.log(details)
-}, { urls: ['https://*/*', 'http://*/*'] }, ['extraHeaders'])
-
+chrome.webRequest.onErrorOccurred.addListener(
+  (details) => {
+    console.log(details);
+  },
+  { urls: ['https://*/*', 'http://*/*'] },
+  ['extraHeaders']
+);
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-    console.log("Received %o from %o, frame", msg, sender.tab);
-    sendResponse(JSON.stringify(urlMap));
+  console.log('Received %o from %o, frame', msg, sender.tab);
+  sendResponse(JSON.stringify(urlMap));
 });
 
 chrome.runtime.onConnect.addListener(function (port) {
-    console.assert(port.name === "knockknock");
+  console.assert(port.name === 'knockknock');
 });
+
+async function storeDataInLocalStorage(data) {
+  localStorage.setItem('collectedData', JSON.stringify(data));
+
+  const sendToMongoDBInterval = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+
+  const sendToMongoDBTimer = setInterval(async () => {
+    const storedData = JSON.parse(localStorage.getItem('collectedData'));
+    if (storedData) {
+      // Send the data to MongoDB LOGIC here
+
+      // Add urlLink and tags for each data point
+      // storedData.forEach((dataPoint) => {
+      //   urlArray.push({
+      //     urlLink: dataPoint.url,
+      //     tags: dataPoint.tags, // array of tags
+      //   });
+      // });
+
+      if (response.ok) {
+        localStorage.removeItem('collectedData');
+      }
+    }
+    const urlArray = [
+      {
+        urlLink: 'google.com',
+        tags: ['google', 'crypto'],
+      },
+    ];
+    const response = await fetch(
+      `http://localhost:3001/api/users/0x659664dd23937edee4f19391A5C355FdbD4c93e6/userdata`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          publicAddress: '0x659664dd23937edee4f19391A5C355FdbD4c93e6',
+          userData: {
+            dataDate: new Date(),
+            urlData: urlArray,
+          },
+        }),
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+    console.log(response);
+  }, 1000);
+}

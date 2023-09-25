@@ -35,12 +35,12 @@ var server = new WebpackDevServer(
     hot: false,
     client: false,
     host: 'localhost',
-    port: env.PORT,
+    port: 3002,
     static: {
       directory: path.join(__dirname, '../build'),
     },
     devMiddleware: {
-      publicPath: `http://localhost:${env.PORT}/`,
+      publicPath: `http://localhost:3002/`,
       writeToDisk: true,
     },
     headers: {
