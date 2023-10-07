@@ -203,6 +203,10 @@ var urlMap = {};
 var blocked_sites = [
   'https://d-frame-user-dashboard.vercel.app',
   'https://auth.magic.link',
+  'chrome-extension://ockphogngajnnccgpkenpbadkdnmakno',
+  'http://localhost:3001',
+  'http://localhost:3000',
+  'https://phone-b5688.firebaseapp.com',
 ];
 
 /*

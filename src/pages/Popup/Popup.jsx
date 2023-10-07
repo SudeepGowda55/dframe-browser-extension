@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router';
 import { BrowserRouter } from 'react-router-dom';
 // Views
@@ -8,10 +8,11 @@ import Dashboard from './Dashboard';
 export default function App() {
   return (
     <BrowserRouter>
-      <div className='App'>
+      <div className="App">
         <Routes>
-          <Route path='/login' element={<Login />} />
-          <Route path='*' element={<Dashboard />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Dashboard />} />
+          <Route path="/" element={<Dashboard />} />
         </Routes>
       </div>
     </BrowserRouter>

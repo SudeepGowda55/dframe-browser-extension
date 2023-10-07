@@ -2,8 +2,16 @@ import React from 'react';
 import logo from '../../assets/img/dframe.png';
 // import Greetings from '../../containers/Greetings/Greetings';
 import './Popup.css';
+import { useEffect } from 'react';
 
 const Login = () => {
+  useEffect(() => {
+    const token = localStorage.getItem('userToken');
+    if (token) {
+      history('/');
+    }
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -11,7 +19,7 @@ const Login = () => {
         <h2>Welcome to Dframe</h2>
       </header>
       <a
-        href="http://localhost:3001/"
+        href="http://localhost:3001"
         rel="noopener noreferrer"
         className="App-link"
         target="_blank"

@@ -73,7 +73,18 @@ function messagePageScript() {
         // Push the entryObject into the entryArray
         entryArray.push(entryObject);
       }
-      console.log(entryArray);
+      const lastElement = entryArray[entryArray.length - 1];
+      let tabData = localStorage.getItem('dframeData') || [];
+      if (lastElement.properties) {
+        tabData.push(lastElement);
+        // Store the tabData array in localStorage
+        localStorage.setItem('dframeData', JSON.stringify(tabData));
+        console.log(
+          'stored data in local storage',
+          localStorage.getItem('dframeData')
+        );
+      }
+
       window.postMessage({
         direction: 'from-content-script',
         message: mod_response,
@@ -140,17 +151,14 @@ function messagePageScript() {
 // }
 
 // Send tab data to API
-async function messageBackend(walletAddress) {
-  // Get tab data
-  let tabData = JSON.parse(localStorage.getItem('tabData')) || [];
-  // let tabData = chrome.storage.local.get('tabData') || [];
-  console.log('Testing for local storage');
-  // let tabData = await chrome.cookies.get({
-  //   url: 'http://localhost:3001',
-  //   name: 'tabData',
-  // });
-
-  console.log(tabData);
+async function messageBackend() {
+  window.ethereum
+    .request({ method: 'eth_requestAccounts' })
+    .then((accounts) => {
+      // Get the first account (wallet address)
+      const address = accounts[0];
+      console.log('metamask', address);
+    });
 
   let responses = [];
 
@@ -187,28 +195,6 @@ async function messageBackend(walletAddress) {
   //     console.error(error);
   //   }
   // }
-  let currentDate = new Date().toLocaleDateString('en-GB');
-
-  // Get the timestamp in 'en-GB' format
-  let timestamp = new Date().toLocaleTimeString('en-GB');
-
-  let response = await fetch('http://localhost:3000/api/users/userdata', {
-    method: 'POST',
-    body: JSON.stringify({
-      publicAddress: walletAddress,
-      data: {
-        dataDate: currentDate,
-        urlData: {
-          urlLink: 'dframe.org',
-          timestamps: [timestamp],
-          tags: ['defi', 'crypto'],
-        },
-      },
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
 
   // Clear localStorage if all responses succeeded
   // if (responses.every((r) => r.ok)) {
@@ -230,7 +216,7 @@ const job2 = new CronJob(pattern, () => {
   //   }
   // });
   console.log('Testing for local storage');
-  messageBackend('0x659664dd23937edee4f19391A5C355FdbD4c93e6');
+  messageBackend();
 });
 
 var port = window.chrome.runtime.connect({ name: 'knockknock' });
