@@ -21,6 +21,7 @@ import axios from 'axios';
 import Web3 from 'web3';
 
 export default function Dashboard() {
+  const [userAddress, setUserAddress] = useState(null);
   const [userMetadata, setUserMetadata] = useState({
     email: 'ayaangames@gmail.com',
   });
@@ -40,29 +41,10 @@ export default function Dashboard() {
     setState({ ...state, [event.target.name]: event.target.checked });
   };
 
-  const [walletAddress, setWalletAddress] = useState('aaa');
-  const [walletBalance, setWalletBalance] = useState('000');
-
-  // useEffect(() => {
-  //   // Request access to accounts
-  //   window.ethereum
-  //     .request({ method: 'eth_requestAccounts' })
-  //     .then((accounts) => {
-  //       // Get the first account (wallet address)
-  //       const address = accounts[0];
-  //       setWalletAddress(address);
-  //       console.log(address);
-  //     });
-  // }, []);
+  const [walletBalance, setWalletBalance] = useState(null);
+  const [fetch, setFetch] = useState(false);
 
   async function getBalance() {
-    window.ethereum
-      .request({ method: 'eth_requestAccounts' })
-      .then((accounts) => {
-        // Get the first account (wallet address)
-        const address = accounts[0];
-        setWalletAddress(address);
-      });
     const web3 = new Web3(
       'https://polygon-mainnet.g.alchemy.com/v2/Ygfvgz118Xr9j6j_F3ZIMFye6SNTgJr8'
     );
@@ -326,27 +308,122 @@ export default function Dashboard() {
     const dframeContract = new web3.eth.Contract(dframeABI, dframeAddress);
     //  get the balance of DFRAME tokens for the specified wallet address
     const balance = await dframeContract.methods
-      .balanceOf(walletAddress)
+      .balanceOf(userAddress)
+      // .balanceOf('0x659664dd23937edee4f19391A5C355FdbD4c93e6')
       .call();
+    setFetch(true);
     const balanceInEth = web3.utils.fromWei(balance, 'ether');
-    const balanceInKFormat = Math.trunc(balanceInEth / 1000).toString() + 'K';
+    const balanceInKFormat = Math.trunc(balanceInEth / 1000).toString() + 'k';
     setWalletBalance(balanceInKFormat);
+    console.log(walletBalance);
+    console.log('userBalance', userBalance);
   }
 
-  // console.log('Token in extension', token);
-  // console.log('Balance in Extension', walletBalance);
-  // console.log('Address in extension', walletAddress);
-
+  // useEffect(() => {
+  //   getBalance();
+  // }, [fetch]);
   useEffect(() => {
     getBalance();
-  }, [walletAddress]);
+  }, [userAddress]);
+  useEffect(() => {
+    // Get the userAddress from chrome.storage.sync
+    chrome.storage.sync.get(['userAddress'], (result) => {
+      if (result.userAddress) {
+        setUserAddress(result.userAddress);
+      }
+    });
+  }, []);
 
+  // useEffect(() => {
+  //   async function fetchWalletAddress() {
+  //     if (window.ethereum) {
+  //       // Use Metamask provider
+  //       const web3 = new Web3(window.ethereum);
+
+  //       try {
+  //         // Request access to the user's accounts
+  //         await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+  //         // Get the current wallet address
+  //         const accounts = await web3.eth.getAccounts();
+
+  //         // Update state with the wallet address
+  //         setWalletAddress(accounts[0]);
+  //         console.log(accounts[0]);
+  //       } catch (error) {
+  //         console.error('Error fetching wallet address:', error);
+  //       }
+  //     } else {
+  //       console.log('Metamask not connected');
+  //     }
+  //   }
+
+  //   console.log('Use effect running');
+  // useEffect(() => {
+  //   async function connectToMetaMask() {
+  //     const web3 = new Web3(Web3.givenProvider);
+
+  //     // Set the web3 instance in the state
+  //     console.log('WEB3 EXTENSION', web3);
+  //   }
+  //   console.log('Use effect running');
+  //   connectToMetaMask();
+  // }, []);
+  //   fetchWalletAddress();
+  // }, []);
+
+  // useEffect(() => {
+  //   // On mount, we check if a user is logged in.
+  //   // If so, we'll retrieve the authenticated user's profile.
+  //   magic.user.isLoggedIn().then((magicIsLoggedIn) => {
+  //     if (magicIsLoggedIn) {
+  //       magic.user.getMetadata().then((result) => {
+  //         setUserMetadata(result);
+  //         // localStorage.setItem("user_cred", result)
+  //         chrome.storage.local.set({ user_cred: result }, () => {
+  //           console.log('user_cred set in local');
+  //         });
+  //       });
+  //     } else {
+  //       // If no user is logged in, redirect to `/login`
+  //       history('/login');
+  //     }
+  //   });
+  // }, []);
+
+  // const logout = useCallback(() => {
+  //   magic.user.logout().then(() => {
+  //     history('/login');
+  //   });
+  // }, [history]);
   // useEffect(() => {
   //   const token = localStorage.getItem('userToken');
   //   if (!token) {
   //     history('/login');
   //   }
   // }, []);
+  // Inside your dashboard.jsx file
+  // useEffect(() => {
+  //   // Inside your dashboard.jsx file
+  //   window.addEventListener('message', (event) => {
+  //     // Check if the message is from a trusted source (optional)
+  //     if (event.source !== window) {
+  //       return;
+  //     }
+
+  //     const message = event.data;
+
+  //     // Check the message type
+  //     if (message.type === 'addressFetched') {
+  //       const userAddress = message.address;
+  //       console.log('FETched address');
+
+  //       // Now you have the user's address, you can fetch the balance of the DFRAME token
+  //       // Call the function to fetch balance here using userAddress
+  //       getBalance(userAddress);
+  //     }
+  //   });
+  // }, []); // Empty dependency array to run once when the component mounts
 
   return (
     <div className="mcontainer">
@@ -521,8 +598,9 @@ export default function Dashboard() {
             </div>
             <div className="earning">
               <p>D Frame Earnings :</p>
-              <h2>{walletBalance ? walletBalance : `N.A`}</h2>
-              <h2>{walletAddress}</h2>
+              <h2>
+                {walletBalance ? walletBalance : `N.A. - Login to dashboard`}
+              </h2>
             </div>
           </div>
         )}

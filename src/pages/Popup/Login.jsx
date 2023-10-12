@@ -3,15 +3,9 @@ import logo from '../../assets/img/dframe.png';
 // import Greetings from '../../containers/Greetings/Greetings';
 import './Popup.css';
 import { useEffect } from 'react';
+import Web3 from 'web3';
 
 const Login = () => {
-  useEffect(() => {
-    const token = localStorage.getItem('userToken');
-    if (token) {
-      history('/');
-    }
-  }, []);
-
   return (
     <div className="App">
       <header className="App-header">

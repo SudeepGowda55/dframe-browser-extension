@@ -101,7 +101,7 @@ function buildTypedUrlList(wallet_address) {
 
   // To look for history items visited in the last week,
   // subtract a week of microseconds from the current time.
-  console.log('reached here');
+  // console.log('reached here');
   var microsecondsPerHour = 1000 * 60;
   var oneHourAgo = new Date().getTime() - microsecondsPerHour;
 
@@ -295,7 +295,7 @@ chrome.webRequest.onBeforeRequest.addListener(
           }
         }
       }
-      console.log('checking url map', urlMap);
+      // console.log('checking url map', urlMap);
     });
   },
   {
@@ -345,6 +345,29 @@ chrome.tabs.onCreated.addListener(function (tab) {
   localStorage.setItem('tabData', JSON.stringify(storedData));
 });
 
+// Listen for messages from the content script
+// Listen for messages from the content script
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('Reached the address listener');
+  if (request.userAddress) {
+    const userAddress = request.userAddress;
+
+    console.log('Address received');
+
+    // Do something with the user's address (e.g., save it to extension storage)
+    // For example, saving it to storage.sync:
+    chrome.storage.sync.set({ userAddress: userAddress }, () => {
+      console.log(
+        'User address saved in extension storage from background script:',
+        userAddress
+      );
+    });
+
+    // Send a response back to the content script
+    sendResponse({ message: 'User address received and saved.' });
+  }
+});
+
 chrome.webRequest.onErrorOccurred.addListener(
   (details) => {
     console.log(details);
@@ -354,7 +377,7 @@ chrome.webRequest.onErrorOccurred.addListener(
 );
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-  console.log('Received %o from %o, frame', msg, sender.tab);
+  // console.log('Received %o from %o, frame', msg, sender.tab);
   sendResponse(JSON.stringify(urlMap));
 });
 

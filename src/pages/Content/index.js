@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { printLine } from './modules/print';
 
 console.log('Content script works!');
@@ -50,11 +51,12 @@ function messagePageScript() {
     } else {
       // Do whatever you want, background script is ready now
       // window.navigator.geolocation.getCurrentPosition((i) => {
-      console.log('Checking response', response);
       mod_response = JSON.parse(response);
-      console.log('Checking the mod_response', mod_response);
+      // console.log('Checking the mod_response', mod_response);
       // Create an array to store all entries
-      let entryArray = [];
+      let entryArray = JSON.parse(localStorage.getItem('entryArray')) || [];
+
+      // console.log('Testing entry array', entryArray);
       for (let [key, value] of Object.entries(mod_response)) {
         if (!mod_response.hasOwnProperty(key)) {
           //The current property is not a direct property of mod_response
@@ -70,18 +72,21 @@ function messagePageScript() {
           properties: mod_response[key], // Store the properties
         };
 
+        // console.log('Testing entry object', entryObject);
+        if (entryObject.properties) {
+          entryArray.push(entryObject);
+          // console.log('Entry array after push', entryArray);
+        }
         // Push the entryObject into the entryArray
-        entryArray.push(entryObject);
       }
       const lastElement = entryArray[entryArray.length - 1];
-      let tabData = localStorage.getItem('dframeData') || [];
+      // console.log('testing last element', lastElement);
       if (lastElement.properties) {
-        tabData.push(lastElement);
         // Store the tabData array in localStorage
-        localStorage.setItem('dframeData', JSON.stringify(tabData));
+        localStorage.setItem('entryArray', JSON.stringify(entryArray));
         console.log(
           'stored data in local storage',
-          localStorage.getItem('dframeData')
+          JSON.parse(localStorage.getItem('entryArray'))
         );
       }
 
@@ -150,17 +155,53 @@ function messagePageScript() {
 //   localStorage.removeItem('tabData');
 // }
 
-// Send tab data to API
-async function messageBackend() {
-  window.ethereum
-    .request({ method: 'eth_requestAccounts' })
-    .then((accounts) => {
-      // Get the first account (wallet address)
-      const address = accounts[0];
-      console.log('metamask', address);
-    });
+// Inside your content script (content/index.js)
+// window.addEventListener('message', (event) => {
+//   // Check if the message is from a trusted source (optional)
+//   if (event.source !== window) {
+//     return;
+//   }
 
-  let responses = [];
+//   const message = event.data;
+
+//   // Check the message type
+//   if (message.type === 'addressFetched') {
+//     const address = message.address;
+
+//     // Do something with the address in your extension
+//     console.log('Address received from React:', address);
+//   }
+// });
+
+// Send tab data to API
+// Get the user's public address from local storage
+const address = window.localStorage.getItem('userPublicAddress');
+
+// Send the address to the background script
+chrome.runtime.sendMessage({ userAddress: address });
+
+async function messageBackend() {
+  console.log('Entered message backend');
+  let address = window.localStorage.getItem('userPublicAddress');
+  console.log('Testing address', address);
+  chrome.runtime.sendMessage({ userAddress: address });
+
+  let tabData = JSON.parse(localStorage.getItem('entryArray'));
+  if (Array.isArray(tabData)) {
+    console.log('Tab data is array');
+  } else {
+    console.log('Tab Data is NOT ARRAY');
+  }
+  await axios
+    .post(`http://localhost:3000/api/user-data/${address}`, {
+      tabData,
+    })
+    .then((response) => {
+      console.log('Successfull SENT DATA', response);
+    })
+    .catch((error) => console.log('error SENT DATA', error));
+  localStorage.removeItem('entryArray');
+  console.log('Removed entry array');
 
   // for (let data of tabData) {
   //   console.log(data);
@@ -204,7 +245,7 @@ async function messageBackend() {
 }
 
 const job = new CronJob(pattern, messagePageScript);
-const job2 = new CronJob(pattern, () => {
+const job2 = new CronJob(pattern3, () => {
   // console.log('Job2 called');
   // chrome.storage.local.get(['user_cred']).then((result) => {
   //   console.log(result);
