@@ -439,15 +439,9 @@ export default function Dashboard() {
         ></iframe>
       )}
 
-      {adData && (
+      {adData && adData.adType && (
         <div style={{ textAlign: 'center' }}>
-          <a
-            href={adData.adUrl ? adData.adUrl : 'https://dframe.org'}
-            target="_blank"
-            rel="noreferrer"
-            style={{ cursor: 'pointer' }}
-            onClick={seenAdFunction}
-          >
+          {adData.adType == 'Image' ? (
             <img
               src={
                 adData.image
@@ -456,9 +450,33 @@ export default function Dashboard() {
               }
               width={100}
             />
+          ) : (
+            <video
+              width={300} // Adjust the width as needed
+              height={315} // Adjust the height as needed
+              controls // Add controls for play, pause, etc.
+            >
+              <source
+                src={
+                  adData.image
+                    ? adData.image
+                    : 'https://www.youtube.com/embed/YKaj1HUcYt0?controls=1'
+                }
+                type="video/mp4"
+              />
+              Your browser does not support the video tag.
+            </video>
+          )}
+          <a
+            href={adData.adUrl ? adData.adUrl : 'https://dframe.org'}
+            target="_blank"
+            rel="noreferrer"
+            style={{ cursor: 'pointer', textDecoration: 'none' }}
+            onClick={seenAdFunction}
+          >
+            <h3>{adData.adName}</h3>
+            <p style={{ marginTop: '10px' }}>{adData.adContent}</p>
           </a>
-          <h3>{adData.adName}</h3>
-          <p style={{ marginTop: '10px' }}>{adData.adContent}</p>
         </div>
       )}
       <div className="icon">
@@ -581,7 +599,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="earning">
-              <p>D Frame Earnings :</p>
+              <p>D Frame Balance :</p>
               <h2>
                 {walletBalance ? walletBalance : `N.A. - Login to dashboard`}
               </h2>
@@ -592,12 +610,18 @@ export default function Dashboard() {
       <div className="containers">
         <p className="containersText1">
           Current User:{' '}
-          <span className="containersText">{userMetadata.email}</span>
+          {userAddress && (
+            <span className="containersText">
+              {userAddress.toString().slice(0, 12) +
+                '...' +
+                userAddress.toString().slice(-12)}
+            </span>
+          )}
         </p>
       </div>
       <div className="logdash">
         <div>
-          <button onClick={console.log('logout')}>Logout</button>
+          <button onClick={console.log('Logout')}>Logout</button>
         </div>
         {/* <div> {!nav ? <a
                 className="App-link"
