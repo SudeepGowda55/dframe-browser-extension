@@ -25,6 +25,8 @@ export default function Dashboard() {
   const [userMetadata, setUserMetadata] = useState({
     email: 'ayaangames@gmail.com',
   });
+  const [adId, setAdId] = useState(null);
+  const [adData, setAdData] = useState(null);
   const history = useNavigate();
   const [nav, setNav] = useState(false);
   const stateChanger = () => {
@@ -322,109 +324,66 @@ export default function Dashboard() {
   // useEffect(() => {
   //   getBalance();
   // }, [fetch]);
+
+  async function fetchAd() {
+    console.log('Fetched Ad Id', adId);
+    await axios
+      .get(`http://localhost:3000/api/get-particular-ad/${adId}`)
+      .then((response) => {
+        console.log('Fetched succesfully', response.data);
+        setAdData(response.data);
+      })
+      .catch((error) => {
+        console.log('error in fetching ad', error);
+      });
+  }
+
+  async function getLatestAdId() {
+    await axios
+      .get(`http://localhost:3000/api/user/get-latest-ad/${userAddress}`)
+      .then((response) => {
+        if (response.status === 200 && response.data !== null) {
+          console.log('Fetched latest ad', response.data);
+          setAdId(response.data.latestAdId);
+        }
+      })
+      .catch((error) => {
+        console.log('Error Fetching Ad', error);
+      });
+  }
+
+  async function seenAdFunction() {
+    await axios
+      .post(`http://localhost:3000/api/update-ad-status/${userAddress}/${adId}`)
+      .then((response) => {
+        console.log('Seen Successfully', response.data);
+      })
+      .then(() => {
+        getLatestAdId();
+      })
+      .catch((error) => {
+        console.log('Error in seenAdFunction', error);
+      });
+  }
+
+  useEffect(() => {
+    fetchAd();
+  }, [adId]);
+
   useEffect(() => {
     getBalance();
+    getLatestAdId();
   }, [userAddress]);
   useEffect(() => {
     // Get the userAddress from chrome.storage.sync
     chrome.storage.sync.get(['userAddress'], (result) => {
       if (result.userAddress) {
         setUserAddress(result.userAddress);
+      } else {
+        history('/login');
       }
     });
   }, []);
-
-  // useEffect(() => {
-  //   async function fetchWalletAddress() {
-  //     if (window.ethereum) {
-  //       // Use Metamask provider
-  //       const web3 = new Web3(window.ethereum);
-
-  //       try {
-  //         // Request access to the user's accounts
-  //         await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-  //         // Get the current wallet address
-  //         const accounts = await web3.eth.getAccounts();
-
-  //         // Update state with the wallet address
-  //         setWalletAddress(accounts[0]);
-  //         console.log(accounts[0]);
-  //       } catch (error) {
-  //         console.error('Error fetching wallet address:', error);
-  //       }
-  //     } else {
-  //       console.log('Metamask not connected');
-  //     }
-  //   }
-
-  //   console.log('Use effect running');
-  // useEffect(() => {
-  //   async function connectToMetaMask() {
-  //     const web3 = new Web3(Web3.givenProvider);
-
-  //     // Set the web3 instance in the state
-  //     console.log('WEB3 EXTENSION', web3);
-  //   }
-  //   console.log('Use effect running');
-  //   connectToMetaMask();
-  // }, []);
-  //   fetchWalletAddress();
-  // }, []);
-
-  // useEffect(() => {
-  //   // On mount, we check if a user is logged in.
-  //   // If so, we'll retrieve the authenticated user's profile.
-  //   magic.user.isLoggedIn().then((magicIsLoggedIn) => {
-  //     if (magicIsLoggedIn) {
-  //       magic.user.getMetadata().then((result) => {
-  //         setUserMetadata(result);
-  //         // localStorage.setItem("user_cred", result)
-  //         chrome.storage.local.set({ user_cred: result }, () => {
-  //           console.log('user_cred set in local');
-  //         });
-  //       });
-  //     } else {
-  //       // If no user is logged in, redirect to `/login`
-  //       history('/login');
-  //     }
-  //   });
-  // }, []);
-
-  // const logout = useCallback(() => {
-  //   magic.user.logout().then(() => {
-  //     history('/login');
-  //   });
-  // }, [history]);
-  // useEffect(() => {
-  //   const token = localStorage.getItem('userToken');
-  //   if (!token) {
-  //     history('/login');
-  //   }
-  // }, []);
-  // Inside your dashboard.jsx file
-  // useEffect(() => {
-  //   // Inside your dashboard.jsx file
-  //   window.addEventListener('message', (event) => {
-  //     // Check if the message is from a trusted source (optional)
-  //     if (event.source !== window) {
-  //       return;
-  //     }
-
-  //     const message = event.data;
-
-  //     // Check the message type
-  //     if (message.type === 'addressFetched') {
-  //       const userAddress = message.address;
-  //       console.log('FETched address');
-
-  //       // Now you have the user's address, you can fetch the balance of the DFRAME token
-  //       // Call the function to fetch balance here using userAddress
-  //       getBalance(userAddress);
-  //     }
-  //   });
-  // }, []); // Empty dependency array to run once when the component mounts
-
   return (
     <div className="mcontainer">
       <div className="flexbox">
@@ -468,15 +427,40 @@ export default function Dashboard() {
           <BsThreeDots size={30} />
         </div>
       </div>
-      <iframe
-        width="95%"
-        height="310"
-        src="https://www.youtube.com/embed/YKaj1HUcYt0?controls=1"
-        title="YouTube video player"
-        // frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-      ></iframe>
+      {!adData && (
+        <iframe
+          width="95%"
+          height="310"
+          src="https://www.youtube.com/embed/YKaj1HUcYt0?controls=1"
+          title="YouTube video player"
+          // frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
+      )}
+
+      {adData && (
+        <div style={{ textAlign: 'center' }}>
+          <a
+            href={adData.adUrl ? adData.adUrl : 'https://dframe.org'}
+            target="_blank"
+            rel="noreferrer"
+            style={{ cursor: 'pointer' }}
+            onClick={seenAdFunction}
+          >
+            <img
+              src={
+                adData.image
+                  ? adData.image
+                  : 'https://upload.wikimedia.org/wikipedia/commons/a/a0/ROR_RAJE.jpg'
+              }
+              width={100}
+            />
+          </a>
+          <h3>{adData.adName}</h3>
+          <p style={{ marginTop: '10px' }}>{adData.adContent}</p>
+        </div>
+      )}
       <div className="icon">
         {!nav ? (
           ''
@@ -613,9 +597,7 @@ export default function Dashboard() {
       </div>
       <div className="logdash">
         <div>
-          <button className="logout" onClick={console.log('logout')}>
-            Logout
-          </button>
+          <button onClick={console.log('logout')}>Logout</button>
         </div>
         {/* <div> {!nav ? <a
                 className="App-link"
