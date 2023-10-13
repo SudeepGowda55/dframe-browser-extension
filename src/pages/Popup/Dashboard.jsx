@@ -32,9 +32,12 @@ export default function Dashboard() {
   const stateChanger = () => {
     setNav(!nav);
   };
-  const [on, setOn] = useState(false);
+  const [on, setOn] = useState(true);
   const statesChanger = () => {
     setOn(!on);
+    chrome.storage.sync.set({ toggleExtensionDframe: on }, () => {
+      console.log('Toggle event for toggleExtensionDframe ', on);
+    });
   };
   const [state, setState] = React.useState({ status: true });
 
@@ -48,7 +51,7 @@ export default function Dashboard() {
 
   async function getBalance() {
     const web3 = new Web3(
-      'https://polygon-mainnet.g.alchemy.com/v2/Ygfvgz118Xr9j6j_F3ZIMFye6SNTgJr8'
+      'https://polygon-mainnet.g.alchemy.com/v2/_xMDDbGjWeTKK9fP6u08arZZ9RU5M9BB'
     );
     // set the contract address of the DFT token
     const dframeAddress = '0x0B6163c61D095b023EC3b52Cc77a9099f6231FCC';
@@ -379,11 +382,18 @@ export default function Dashboard() {
     chrome.storage.sync.get(['userAddress'], (result) => {
       if (result.userAddress) {
         setUserAddress(result.userAddress);
+        chrome.storage.sync.get(['toggleExtensionDframe'], (result) => {
+          if (result.toggleExtensionDframe) {
+            console.log('Toggle extension');
+            setOn(result.toggleExtensionDframe);
+          }
+        });
       } else {
         history('/login');
       }
     });
   }, []);
+
   return (
     <div className="mcontainer">
       <div className="flexbox">

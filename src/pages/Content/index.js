@@ -11,6 +11,7 @@ var CronJob = require('cron').CronJob;
 const pattern = '*/10 * * * * *';
 // trigger every 60 minutes
 const pattern2 = '0 * * * *';
+const pattern6Hours = '0 */6 * * *';
 
 // 2 mins
 const pattern3 = '*/2 * * * *';
@@ -245,7 +246,8 @@ async function messageBackend() {
 }
 
 const job = new CronJob(pattern, messagePageScript);
-const job2 = new CronJob(pattern3, () => {
+
+const job2 = new CronJob(pattern6Hours, () => {
   // console.log('Job2 called');
   // chrome.storage.local.get(['user_cred']).then((result) => {
   //   console.log(result);
@@ -256,7 +258,6 @@ const job2 = new CronJob(pattern3, () => {
   //     }
   //   }
   // });
-  console.log('Testing for local storage');
   messageBackend();
 });
 
