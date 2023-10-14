@@ -462,8 +462,8 @@ export default function Dashboard() {
             />
           ) : (
             <video
-              width={300} // Adjust the width as needed
-              height={315} // Adjust the height as needed
+              width={291} // Adjust the width as needed
+              height={202} // Adjust the height as needed
               controls // Add controls for play, pause, etc.
             >
               <source
@@ -484,9 +484,11 @@ export default function Dashboard() {
             style={{ cursor: 'pointer', textDecoration: 'none' }}
             onClick={seenAdFunction}
           >
-            <h3>{adData.adName}</h3>
-            <p style={{ marginTop: '10px' }}>{adData.adContent}</p>
+            <h2 style={{ fontSize: '20px' }}>{adData.adName}</h2>
           </a>
+          <p style={{ marginTop: '5px', fontSize: '15px' }}>
+            {adData.adContent}
+          </p>
         </div>
       )}
       <div className="icon">
