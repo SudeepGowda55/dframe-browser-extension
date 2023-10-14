@@ -484,7 +484,7 @@ export default function Dashboard() {
             style={{ cursor: 'pointer', textDecoration: 'none' }}
             onClick={seenAdFunction}
           >
-            <h2 style={{ fontSize: '20px' }}>{adData.adName}</h2>
+            <h2 style={{ fontSize: '20px', color: 'blue' }}>{adData.adName}</h2>
           </a>
           <p style={{ marginTop: '5px', fontSize: '15px' }}>
             {adData.adContent}
