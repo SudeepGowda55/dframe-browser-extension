@@ -462,7 +462,7 @@ export default function Dashboard() {
             />
           ) : (
             <video
-              width={291} // Adjust the width as needed
+              width={288} // Adjust the width as needed
               height={202} // Adjust the height as needed
               controls // Add controls for play, pause, etc.
             >
