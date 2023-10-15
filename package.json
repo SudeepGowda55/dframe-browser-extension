@@ -1,7 +1,7 @@
 {
-  "name": "dframe-browser-extension",
-  "version": "4.3.5",
-  "description": "D Frame Browser extension boilerplate built with React 17, Webpack 5, and Webpack Dev Server 4. When the user enables this extension and clicks on loginbutton, the user will be redirected to the D Frame User Dashboard",
+  "name": "dframe-extension",
+  "version": "4.9.5",
+  "description": "Join D Frame for the Universal Basic Income (UBI) revolution on Blockchain.",
   "license": "MIT",
   "repository": {
     "type": "git",
