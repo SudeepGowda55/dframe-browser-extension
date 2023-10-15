@@ -42,139 +42,73 @@ window.navigator.geolocation.getCurrentPosition((i) => {
 
 let mod_response;
 
-/*
-Send a message to the page script.
-*/
 function messagePageScript() {
   window.chrome.runtime.sendMessage({ text: 'hey' }, function (response) {
     if (chrome.runtime.lastError) {
       setTimeout(messagePageScript, 100);
     } else {
-      // Do whatever you want, background script is ready now
-      // window.navigator.geolocation.getCurrentPosition((i) => {
-      mod_response = JSON.parse(response);
-      // console.log('Checking the mod_response', mod_response);
-      // Create an array to store all entries
+      // Parse the response from the background script
+      const mod_response = JSON.parse(response);
+      window.postMessage({
+        direction: 'from-content-script',
+        message: mod_response,
+      });
+      // Get the entryArray from localStorage
       let entryArray = JSON.parse(localStorage.getItem('entryArray')) || [];
 
-      // console.log('Testing entry array', entryArray);
+      // Loop through the data from mod_response
       for (let [key, value] of Object.entries(mod_response)) {
         if (!mod_response.hasOwnProperty(key)) {
           //The current property is not a direct property of mod_response
           continue;
         }
+
+        // Add the geolocation
         mod_response[key]['geolocation'] = geoLocation;
-        if (mod_response[key]['time_on_site'] == 0) {
+
+        // Filter based on 'time_on_site' and create an entryObject
+        if (mod_response[key]['time_on_site'] === 0) {
           delete mod_response[key];
-        }
-        // Create an object to store both URL and properties
-        const entryObject = {
-          urlLink: key, // Store the current mod_response[key] as urlLink
-          properties: mod_response[key], // Store the properties
-        };
+        } else {
+          const entryObject = {
+            urlLink: key,
+            properties: mod_response[key],
+          };
 
-        // console.log('Testing entry object', entryObject);
-        if (entryObject.properties) {
-          entryArray.push(entryObject);
-          // console.log('Entry array after push', entryArray);
+          // Check if urlLink already exists in entryArray
+          const existingEntry = entryArray.find(
+            (entry) => entry.urlLink === key
+          );
+
+          if (existingEntry) {
+            // Compare timestamps and push only if the difference is at least 60 minutes (in milliseconds)
+            const timestampDifference =
+              entryObject.properties.timeStamp -
+              existingEntry.properties.timeStamp;
+            if (timestampDifference >= 3 * 60 * 60 * 1000) {
+              entryArray.push(entryObject);
+              console.log('Added entryObject to entryArray:', entryObject);
+            } else {
+              console.log(
+                'Skipped entryObject due to timestamp difference:',
+                entryObject
+              );
+            }
+          } else {
+            entryArray.push(entryObject);
+            console.log('Added entryObject to entryArray:', entryObject);
+          }
         }
-        // Push the entryObject into the entryArray
-      }
-      const lastElement = entryArray[entryArray.length - 1];
-      // console.log('testing last element', lastElement);
-      if (lastElement.properties) {
-        // Store the tabData array in localStorage
-        localStorage.setItem('entryArray', JSON.stringify(entryArray));
-        console.log(
-          'stored data in local storage',
-          JSON.parse(localStorage.getItem('entryArray'))
-        );
       }
 
-      window.postMessage({
-        direction: 'from-content-script',
-        message: mod_response,
-      });
-      // }, console.log)
+      // Store the updated entryArray in localStorage
+      localStorage.setItem('entryArray', JSON.stringify(entryArray));
+      console.log('Stored data in local storage:', JSON.parse(entryArray));
+
+      // Send a message to the page's window
     }
   });
 }
-
-// async function messageBackend(wallet_address) {
-//   const currentDate = new Date().toLocaleDateString('en-GB');
-//   const timestamp = new Date().toLocaleTimeString('en-GB');
-//   console.log(currentDate, timestamp);
-//   let data = await fetch('http://localhost:3000/api/users/userdata', {
-//     method: 'POST',
-//     body: JSON.stringify({
-//       publicAddress: wallet_address,
-//       data: {
-//         dataDate: currentDate,
-//         urlData: {
-//           urlLink: 'dframe.org',
-//           timestamps: [timestamp],
-//           tags: ['defi', 'crypto'],
-//         },
-//       },
-//     }),
-//     headers: { 'Content-Type': 'application/json' },
-//   });
-//   mod_response = {};
-// }
-
-// async function messageBackend(walletAddress) {
-//   // Get tab data from localStorage
-//   let tabData = JSON.parse(localStorage.getItem('tabData'));
-
-//   // Loop through each tab data item
-//   console.log(tabdata);
-//   for (let data of tabData) {
-//     // Destructure values
-//     let { url, date, timestamp } = data;
-
-//     // Make API call
-//     let response = await fetch('http://localhost:3000/api/users/userdata', {
-//       method: 'POST',
-//       body: JSON.stringify({
-//         publicAddress: walletAddress,
-//         data: {
-//           dataDate: date,
-//           urlData: {
-//             urlLink: url,
-//             timestamps: [timestamp],
-//             tags: ['defi', 'crypto'],
-//           },
-//         },
-//       }),
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//     });
-//   }
-
-//   // Clear localStorage
-//   localStorage.removeItem('tabData');
-// }
-
-// Inside your content script (content/index.js)
-// window.addEventListener('message', (event) => {
-//   // Check if the message is from a trusted source (optional)
-//   if (event.source !== window) {
-//     return;
-//   }
-
-//   const message = event.data;
-
-//   // Check the message type
-//   if (message.type === 'addressFetched') {
-//     const address = message.address;
-
-//     // Do something with the address in your extension
-//     console.log('Address received from React:', address);
-//   }
-// });
-
-// Send tab data to API
 // Get the user's public address from local storage
 const address = window.localStorage.getItem('userPublicAddress');
 
@@ -194,9 +128,12 @@ async function messageBackend() {
     console.log('Tab Data is NOT ARRAY');
   }
   await axios
-    .post(`http://localhost:3000/api/user-data/${address}`, {
-      tabData,
-    })
+    .post(
+      `https://user-backend-402016.el.r.appspot.com/user/api/user-data/${address}`,
+      {
+        tabData,
+      }
+    )
     .then((response) => {
       console.log('Successfull SENT DATA', response);
     })
@@ -263,5 +200,36 @@ const job2 = new CronJob(pattern6Hours, () => {
 
 var port = window.chrome.runtime.connect({ name: 'knockknock' });
 
-job.start();
-job2.start();
+// if (true) {
+//   console.log('RUNNING CRON JOB');
+//   job.start();
+//   job2.start();
+// }
+
+// Define a function to start or stop cron jobs based on the toggle value
+function startOrStopCronJobs(newValue) {
+  if (newValue) {
+    console.log('RUNNING CRON JOB');
+    job.start();
+    job2.start();
+  } else {
+    console.log('Your is OFF');
+  }
+}
+
+// Use chrome.storage.onChanged to listen for changes in the 'toggle' value
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === 'sync' && changes.toggle) {
+    const newValue = changes.toggle.newValue;
+    startOrStopCronJobs(newValue);
+  }
+});
+
+// Initial check of the 'toggle' value
+chrome.storage.sync.get(['toggle'], (result) => {
+  if (result.toggle) {
+    startOrStopCronJobs(result.toggle);
+  } else {
+    console.log('Your is OFF');
+  }
+});

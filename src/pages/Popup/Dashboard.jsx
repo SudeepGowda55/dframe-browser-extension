@@ -22,9 +22,6 @@ import Web3 from 'web3';
 
 export default function Dashboard() {
   const [userAddress, setUserAddress] = useState(null);
-  const [userMetadata, setUserMetadata] = useState({
-    email: 'ayaangames@gmail.com',
-  });
   const [adId, setAdId] = useState(null);
   const [adData, setAdData] = useState(null);
   const history = useNavigate();
@@ -32,13 +29,51 @@ export default function Dashboard() {
   const stateChanger = () => {
     setNav(!nav);
   };
-  const [on, setOn] = useState(true);
-  const statesChanger = () => {
-    setOn(!on);
-    chrome.storage.sync.set({ toggleExtensionDframe: on }, () => {
-      console.log('Toggle event for toggleExtensionDframe ', on);
-    });
+  const [on, setOn] = useState(null);
+  const statesChanger = async () => {
+    setOn(false);
+    setTimeout(async () => {
+      await axios
+        .patch(
+          `https://user-backend-402016.el.r.appspot.com/user/api/permissions/${userAddress}`,
+          {
+            location: false,
+            cookies: false,
+            callDataSharing: true,
+            emailSharing: true,
+            notification: true,
+            storageOption: 'GCP',
+          }
+        )
+        .then((response) => {
+          console.log('SUCCESFUL STATE CHANGE');
+          getPermissions();
+        })
+        .catch((err) => console.log('ERROR STATE CHANGER', err));
+    }, 1000);
   };
+
+  async function statesChanger2() {
+    setOn(true);
+
+    await axios
+      .patch(
+        `https://user-backend-402016.el.r.appspot.com/user/api/permissions/${userAddress}`,
+        {
+          location: true,
+          cookies: true,
+          callDataSharing: true,
+          emailSharing: true,
+          notification: true,
+          storageOption: 'GCP',
+        }
+      )
+      .then((response) => {
+        console.log('SUCCESFUL STATE CHANGE');
+        getPermissions();
+      })
+      .catch((err) => console.log('ERROR STATE CHANGER', err));
+  }
   const [state, setState] = React.useState({ status: true });
 
   // Change State Function
@@ -331,7 +366,9 @@ export default function Dashboard() {
   async function fetchAd() {
     console.log('Fetched Ad Id', adId);
     await axios
-      .get(`http://localhost:3000/api/get-particular-ad/${adId}`)
+      .get(
+        `https://user-backend-402016.el.r.appspot.com/ad/api/get-particular-ad/${adId}`
+      )
       .then((response) => {
         console.log('Fetched succesfully', response.data);
         setAdData(response.data);
@@ -343,12 +380,12 @@ export default function Dashboard() {
 
   async function getLatestAdId() {
     await axios
-      .get(`http://localhost:3000/api/user/get-latest-ad/${userAddress}`)
+      .get(
+        `https://user-backend-402016.el.r.appspot.com/user/api/user/get-latest-ad/${userAddress}`
+      )
       .then((response) => {
-        if (response.status === 200 && response.data !== null) {
-          console.log('Fetched latest ad', response.data);
-          setAdId(response.data.latestAdId);
-        }
+        console.log('Fetched latest ad', response.data);
+        setAdId(response.data.latestAdId);
       })
       .catch((error) => {
         console.log('Error Fetching Ad', error);
@@ -357,7 +394,9 @@ export default function Dashboard() {
 
   async function seenAdFunction() {
     await axios
-      .post(`http://localhost:3000/api/update-ad-status/${userAddress}/${adId}`)
+      .post(
+        `https://user-backend-402016.el.r.appspot.com/user/api/update-ad-status/${userAddress}/${adId}`
+      )
       .then((response) => {
         console.log('Seen Successfully', response.data);
       })
@@ -369,6 +408,27 @@ export default function Dashboard() {
       });
   }
 
+  async function getPermissions() {
+    await axios
+      .get(
+        `https://user-backend-402016.el.r.appspot.com/user/api/user/${userAddress}`
+      )
+      .then(async (res) => {
+        console.log('Got Permissions', res.data);
+        setOn(res.data.user.permissions.cookies);
+        chrome.storage.sync.set(
+          { toggle: res.data.user.permissions.cookies },
+          () => {
+            console.log(
+              'Toggle stored in dashboard',
+              res.data.user.permissions.cookies
+            );
+          }
+        );
+      })
+      .catch((err) => console.log('Error in getPermissions', err));
+  }
+
   useEffect(() => {
     fetchAd();
   }, [adId]);
@@ -376,18 +436,13 @@ export default function Dashboard() {
   useEffect(() => {
     getBalance();
     getLatestAdId();
+    getPermissions();
   }, [userAddress]);
   useEffect(() => {
     // Get the userAddress from chrome.storage.sync
     chrome.storage.sync.get(['userAddress'], (result) => {
       if (result.userAddress) {
         setUserAddress(result.userAddress);
-        chrome.storage.sync.get(['toggleExtensionDframe'], (result) => {
-          if (result.toggleExtensionDframe) {
-            console.log('Toggle extension');
-            setOn(result.toggleExtensionDframe);
-          }
-        });
       } else {
         history('/login');
       }
@@ -400,7 +455,7 @@ export default function Dashboard() {
         <a
           href="https://dframe.org/"
           rel="noopener noreferrer"
-          style={{ textDecoration: 'none' }}
+          style={{ textDecoration: 'none', cursor: 'pointer' }}
           target="_blank"
         >
           <div className="lflex">
@@ -410,11 +465,17 @@ export default function Dashboard() {
             </h2>
           </div>
         </a>
-        <div onClick={statesChanger} style={{ padding: '8px' }} className="on">
-          {!on ? <p>ON</p> : <p>OFF</p>}
-        </div>
+
         <div
-          onClick={statesChanger}
+          style={{ padding: '8px' }}
+          className="on"
+          onClick={on ? statesChanger : statesChanger2}
+        >
+          {on ? <p>OFF</p> : <p>ON</p>}
+        </div>
+
+        <div
+          onClick={on ? statesChanger : statesChanger2}
           style={{
             margin: 'auto',
             display: 'block',
@@ -424,7 +485,7 @@ export default function Dashboard() {
           <FormControlLabel
             control={
               <Switch
-                checked={state.status}
+                checked={on ? true : false}
                 onChange={handleChange}
                 color="primary"
                 name="status"
@@ -499,7 +560,7 @@ export default function Dashboard() {
             <div className="_icons">
               <div>
                 <a
-                  href="http://localhost:3001/Profile"
+                  href="https://dframe-user-alpha.vercel.app//Profile"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -513,7 +574,7 @@ export default function Dashboard() {
               </div>
 
               <div>
-                {/* <a href="http://localhost:3001/Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
+                {/* <a href="https://dframe-user-alpha.vercel.app//Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
                                 <div className='icons'>
                                     <img src={wallet} alt="Wallet Icon" className="reactIcons" />
                                     <p className='reactText'>Wallet</p>
@@ -525,7 +586,7 @@ export default function Dashboard() {
 
               <div>
                 <a
-                  href="http://localhost:3001/BrowserData"
+                  href="https://dframe-user-alpha.vercel.app//BrowserData"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -543,7 +604,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="http://localhost:3001/Reward"
+                  href="https://dframe-user-alpha.vercel.app//Reward"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -561,7 +622,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="http://localhost:3001/TopSiteVisited"
+                  href="https://dframe-user-alpha.vercel.app//TopSiteVisited"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -579,7 +640,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="http://localhost:3001/Permissions"
+                  href="https://dframe-user-alpha.vercel.app//Permissions"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -597,7 +658,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="http://localhost:3001/Help"
+                  href="https://dframe-user-alpha.vercel.app//Help"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -637,7 +698,7 @@ export default function Dashboard() {
         </div>
         {/* <div> {!nav ? <a
                 className="App-link"
-                href="http://localhost:3001"
+                href="https://dframe-user-alpha.vercel.app/"
             //rel="noopener noreferrer"
             >
                 Go to dashboard!

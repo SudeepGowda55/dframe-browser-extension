@@ -207,6 +207,8 @@ var blocked_sites = [
   'http://localhost:3001',
   'http://localhost:3000',
   'https://phone-b5688.firebaseapp.com',
+  'https://dframe-user-alpha.vercel.app',
+  'https://dframe-client-alpha.vercel.app',
 ];
 
 /*
