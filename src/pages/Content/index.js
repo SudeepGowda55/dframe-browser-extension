@@ -148,7 +148,7 @@ async function messageBackend() {
   //     let { url, date, timestamp } = data;
 
   //     // Make API call
-  //     let response = await fetch('http://localhost:3000/api/users/userdata', {
+  //     let response = await fetch('https://dframe-user-alpha.vercel.app/api/users/userdata', {
   //       method: 'POST',
   //       body: JSON.stringify({
   //         publicAddress: walletAddress,

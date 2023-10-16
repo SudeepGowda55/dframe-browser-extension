@@ -37,11 +37,7 @@ export default function Dashboard() {
         .patch(
           `https://user-backend-402016.el.r.appspot.com/user/api/permissions/${userAddress}`,
           {
-            location: false,
-            cookies: false,
-            callDataSharing: true,
-            emailSharing: true,
-            notification: true,
+            browserData: false,
             storageOption: 'GCP',
           }
         )
@@ -60,11 +56,7 @@ export default function Dashboard() {
       .patch(
         `https://user-backend-402016.el.r.appspot.com/user/api/permissions/${userAddress}`,
         {
-          location: true,
-          cookies: true,
-          callDataSharing: true,
-          emailSharing: true,
-          notification: true,
+          browserData: true,
           storageOption: 'GCP',
         }
       )
@@ -359,17 +351,14 @@ export default function Dashboard() {
     console.log('userBalance', userBalance);
   }
 
-  // useEffect(() => {
-  //   getBalance();
-  // }, [fetch]);
-
   async function fetchAd() {
-    console.log('Fetched Ad Id', adId);
+    console.log('AD ID IN FETCHAD', adId);
     await axios
       .get(
         `https://user-backend-402016.el.r.appspot.com/ad/api/get-particular-ad/${adId}`
       )
       .then((response) => {
+        console.log('Fetched Ad', response.data);
         console.log('Fetched succesfully', response.data);
         setAdData(response.data);
       })
@@ -384,11 +373,11 @@ export default function Dashboard() {
         `https://user-backend-402016.el.r.appspot.com/user/api/user/get-latest-ad/${userAddress}`
       )
       .then((response) => {
-        console.log('Fetched latest ad', response.data);
+        console.log('Fetched ADID', response.data);
         setAdId(response.data.latestAdId);
       })
       .catch((error) => {
-        console.log('Error Fetching Ad', error);
+        console.log('Error AdID', error);
       });
   }
 
@@ -415,13 +404,13 @@ export default function Dashboard() {
       )
       .then(async (res) => {
         console.log('Got Permissions', res.data);
-        setOn(res.data.user.permissions.cookies);
+        setOn(res.data.user.permissions.browserData);
         chrome.storage.sync.set(
-          { toggle: res.data.user.permissions.cookies },
+          { toggle: res.data.user.permissions.browserData },
           () => {
             console.log(
               'Toggle stored in dashboard',
-              res.data.user.permissions.cookies
+              res.data.user.permissions.browserData
             );
           }
         );
@@ -560,7 +549,7 @@ export default function Dashboard() {
             <div className="_icons">
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app//Profile"
+                  href="https://dframe-user-alpha.vercel.app/Profile"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -574,7 +563,7 @@ export default function Dashboard() {
               </div>
 
               <div>
-                {/* <a href="https://dframe-user-alpha.vercel.app//Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
+                {/* <a href="https://dframe-user-alpha.vercel.app/Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
                                 <div className='icons'>
                                     <img src={wallet} alt="Wallet Icon" className="reactIcons" />
                                     <p className='reactText'>Wallet</p>
@@ -586,7 +575,7 @@ export default function Dashboard() {
 
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app//BrowserData"
+                  href="https://dframe-user-alpha.vercel.app/BrowserData"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -604,7 +593,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app//Reward"
+                  href="https://dframe-user-alpha.vercel.app/Reward"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -622,7 +611,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app//TopSiteVisited"
+                  href="https://dframe-user-alpha.vercel.app/TopSiteVisited"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -640,7 +629,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app//Permissions"
+                  href="https://dframe-user-alpha.vercel.app/Permissions"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -658,7 +647,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app//Help"
+                  href="https://dframe-user-alpha.vercel.app/Help"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -698,7 +687,7 @@ export default function Dashboard() {
         </div>
         {/* <div> {!nav ? <a
                 className="App-link"
-                href="https://dframe-user-alpha.vercel.app/"
+                href="https://dframe-user-alpha.vercel.app"
             //rel="noopener noreferrer"
             >
                 Go to dashboard!
