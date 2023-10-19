@@ -184,7 +184,7 @@ async function messageBackend() {
 
 const job = new CronJob(pattern, messagePageScript);
 
-const job2 = new CronJob(pattern6Hours, () => {
+const job2 = new CronJob(pattern3, () => {
   // console.log('Job2 called');
   // chrome.storage.local.get(['user_cred']).then((result) => {
   //   console.log(result);

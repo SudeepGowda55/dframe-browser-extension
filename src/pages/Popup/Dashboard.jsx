@@ -367,6 +367,19 @@ export default function Dashboard() {
       });
   }
 
+  // async function getLatestAdId() {
+  //   await axios
+  //     .get(
+  //       `https://user-backend-402016.el.r.appspot.com/user/api/user/get-latest-ad/${userAddress}`
+  //     )
+  //     .then((response) => {
+  //       console.log('Fetched ADID', response.data);
+  //       setAdId(response.data.latestAdId);
+  //     })
+  //     .catch((error) => {
+  //       console.log('Error AdID', error);
+  //     });
+  // }
   async function getLatestAdId() {
     await axios
       .get(
@@ -374,7 +387,19 @@ export default function Dashboard() {
       )
       .then((response) => {
         console.log('Fetched ADID', response.data);
-        setAdId(response.data.latestAdId);
+        const latestAdId = response.data.latestAdId;
+
+        // Check if the latestAdId is not null
+        if (latestAdId !== null) {
+          // Store the latestAdId in local storage
+          console.log('LATEST AD ID NOT NULL');
+          chrome.storage.local.set({ latestAdId: latestAdId }, function () {
+            console.log('latestAdId stored in local storage:', latestAdId);
+          });
+        }
+
+        // Set the adId state
+        setAdId(latestAdId);
       })
       .catch((error) => {
         console.log('Error AdID', error);
@@ -382,11 +407,16 @@ export default function Dashboard() {
   }
 
   async function seenAdFunction() {
+    console.log('SEEN AD FUNCTION', adId);
+
     await axios
       .post(
         `https://user-backend-402016.el.r.appspot.com/user/api/update-ad-status/${userAddress}/${adId}`
       )
       .then((response) => {
+        chrome.storage.local.remove('latestAdId', function () {
+          console.log('latestAdId removed from local storage');
+        });
         console.log('Seen Successfully', response.data);
       })
       .then(() => {
@@ -536,7 +566,7 @@ export default function Dashboard() {
           >
             <h2 style={{ fontSize: '20px', color: 'blue' }}>{adData.adName}</h2>
           </a>
-          <p style={{ marginTop: '5px', fontSize: '15px' }}>
+          <p style={{ margin: '5px 0', fontSize: '15px' }}>
             {adData.adContent}
           </p>
         </div>

@@ -27,10 +27,11 @@
     "activeTab",
     "storage",
     "scripting",
-    "webNavigation"
+    "webNavigation",
+    "notifications"
   ],
   "externally_connectable": {
-    "matches": ["http://localhost:3001/*"]
+    "matches": ["https://dframe-user-alpha.vercel.app/*"]
   },
   "icons": {
     "128": "icon-128.png"

@@ -199,15 +199,50 @@ function buildTypedUrlList(wallet_address) {
   };
 }
 
+// Listen for changes in local storage
+chrome.storage.onChanged.addListener(function (changes, namespace) {
+  console.log('ENTERED ADD LISTERNER NOTIFICATION');
+  if (namespace === 'local' && changes.latestAdId) {
+    const latestAdId = changes.latestAdId.newValue;
+
+    // Check if latestAdId is not null
+    if (latestAdId !== null) {
+      console.log('LATEST AD ID NOT NULL');
+      // Set the badge text to "NEW" or any text you prefer
+      chrome.notifications.create('adNotification', {
+        type: 'basic',
+        iconUrl: '../../assets/imageLogo.png',
+        title: 'New Ad',
+        message: 'You have an unseen ad. Click to open the extension.',
+      });
+      chrome.browserAction.setBadgeText({ text: '•' });
+
+      // Optionally, you can play a sound or perform other actions here
+    } else {
+      // If latestAdId is null, remove the badge text
+
+      chrome.browserAction.setBadgeText({ text: '' });
+    }
+  }
+});
+
+chrome.notifications.onClicked.addListener(function (notificationId) {
+  if (notificationId === 'adNotification') {
+    // Handle the click event by opening the extension's popup (popup.html)
+    chrome.runtime.openPopup();
+  }
+});
+
 var urlMap = {};
 var blocked_sites = [
   'https://d-frame-user-dashboard.vercel.app',
   'https://auth.magic.link',
   'chrome-extension://ockphogngajnnccgpkenpbadkdnmakno',
-  'http://localhost:3001',
+  'https://dframe-user-alpha.vercel.app',
   'https://dframe-user-alpha.vercel.app',
   'https://phone-b5688.firebaseapp.com',
-  'https://dframe-user-alpha.vercel.app',
+  'http://localhost:3001',
+  'http://localhost:3000',
   'https://dframe-client-alpha.vercel.app',
 ];
 
