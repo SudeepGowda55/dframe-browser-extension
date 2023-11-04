@@ -34,13 +34,10 @@ export default function Dashboard() {
     setOn(false);
     setTimeout(async () => {
       await axios
-        .patch(
-          `https://user-backend-402016.el.r.appspot.com/user/api/permissions/${userAddress}`,
-          {
-            browserData: false,
-            storageOption: 'GCP',
-          }
-        )
+        .patch(`http://localhost:8080/user/api/permissions/${userAddress}`, {
+          browserData: false,
+          storageOption: 'GCP',
+        })
         .then((response) => {
           console.log('SUCCESFUL STATE CHANGE');
           getPermissions();
@@ -53,13 +50,10 @@ export default function Dashboard() {
     setOn(true);
 
     await axios
-      .patch(
-        `https://user-backend-402016.el.r.appspot.com/user/api/permissions/${userAddress}`,
-        {
-          browserData: true,
-          storageOption: 'GCP',
-        }
-      )
+      .patch(`http://localhost:8080/user/api/permissions/${userAddress}`, {
+        browserData: true,
+        storageOption: 'GCP',
+      })
       .then((response) => {
         console.log('SUCCESFUL STATE CHANGE');
         getPermissions();
@@ -354,9 +348,7 @@ export default function Dashboard() {
   async function fetchAd() {
     console.log('AD ID IN FETCHAD', adId);
     await axios
-      .get(
-        `https://user-backend-402016.el.r.appspot.com/ad/api/get-particular-ad/${adId}`
-      )
+      .get(`http://localhost:8080/ad/api/get-particular-ad/${adId}`)
       .then((response) => {
         console.log('Fetched Ad', response.data);
         console.log('Fetched succesfully', response.data);
@@ -370,7 +362,7 @@ export default function Dashboard() {
   // async function getLatestAdId() {
   //   await axios
   //     .get(
-  //       `https://user-backend-402016.el.r.appspot.com/user/api/user/get-latest-ad/${userAddress}`
+  //       `http://localhost:8080/user/api/user/get-latest-ad/${userAddress}`
   //     )
   //     .then((response) => {
   //       console.log('Fetched ADID', response.data);
@@ -382,9 +374,7 @@ export default function Dashboard() {
   // }
   async function getLatestAdId() {
     await axios
-      .get(
-        `https://user-backend-402016.el.r.appspot.com/user/api/user/get-latest-ad/${userAddress}`
-      )
+      .get(`http://localhost:8080/user/api/user/get-latest-ad/${userAddress}`)
       .then((response) => {
         console.log('Fetched ADID', response.data);
         const latestAdId = response.data.latestAdId;
@@ -408,10 +398,10 @@ export default function Dashboard() {
 
   async function seenAdFunction() {
     console.log('SEEN AD FUNCTION', adId);
-
+    // window.open(adData.adUrl ? adData.adUrl : 'https://dframe.org', '_blank');
     await axios
       .post(
-        `https://user-backend-402016.el.r.appspot.com/user/api/update-ad-status/${userAddress}/${adId}`
+        `http://localhost:8080/user/api/update-ad-status/${userAddress}/${adId}`
       )
       .then((response) => {
         chrome.storage.local.remove('latestAdId', function () {
@@ -429,9 +419,7 @@ export default function Dashboard() {
 
   async function getPermissions() {
     await axios
-      .get(
-        `https://user-backend-402016.el.r.appspot.com/user/api/user/${userAddress}`
-      )
+      .get(`http://localhost:8080/user/api/user/${userAddress}`)
       .then(async (res) => {
         console.log('Got Permissions', res.data);
         setOn(res.data.user.permissions.browserData);
@@ -459,9 +447,9 @@ export default function Dashboard() {
   }, [userAddress]);
   useEffect(() => {
     // Get the userAddress from chrome.storage.sync
-    chrome.storage.sync.get(['userAddress'], (result) => {
-      if (result.userAddress) {
-        setUserAddress(result.userAddress);
+    chrome.storage.sync.get(['userPublicAddress'], (result) => {
+      if (result.userPublicAddress) {
+        setUserAddress(result.userPublicAddress);
       } else {
         history('/login');
       }
@@ -530,7 +518,11 @@ export default function Dashboard() {
       )}
 
       {adData && adData.adType && (
-        <div style={{ textAlign: 'center' }}>
+        <div
+          style={{
+            textAlign: 'center',
+          }}
+        >
           {adData.adType == 'Image' ? (
             <img
               src={
@@ -561,12 +553,27 @@ export default function Dashboard() {
             href={adData.adUrl ? adData.adUrl : 'https://dframe.org'}
             target="_blank"
             rel="noreferrer"
-            style={{ cursor: 'pointer', textDecoration: 'none' }}
+            style={{
+              cursor: 'pointer',
+              textDecoration: 'none',
+              height: '10px',
+            }}
             onClick={seenAdFunction}
           >
-            <h2 style={{ fontSize: '20px', color: 'blue' }}>{adData.adName}</h2>
+            <h2
+              style={{
+                fontSize: '20px',
+                color: 'blue',
+              }}
+            >
+              {adData.adName}
+            </h2>
           </a>
-          <p style={{ margin: '5px 0', fontSize: '15px' }}>
+          <p
+            style={{
+              fontSize: '15px',
+            }}
+          >
             {adData.adContent}
           </p>
         </div>
@@ -579,7 +586,7 @@ export default function Dashboard() {
             <div className="_icons">
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app/Profile"
+                  href="http://localhost:3000/Profile"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -593,7 +600,7 @@ export default function Dashboard() {
               </div>
 
               <div>
-                {/* <a href="https://dframe-user-alpha.vercel.app/Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
+                {/* <a href="http://localhost:3000/Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
                                 <div className='icons'>
                                     <img src={wallet} alt="Wallet Icon" className="reactIcons" />
                                     <p className='reactText'>Wallet</p>
@@ -605,7 +612,7 @@ export default function Dashboard() {
 
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app/BrowserData"
+                  href="http://localhost:3000/BrowserData"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -623,7 +630,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app/Reward"
+                  href="http://localhost:3000/Reward"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -641,7 +648,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app/TopSiteVisited"
+                  href="http://localhost:3000/TopSiteVisited"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -659,7 +666,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app/Permissions"
+                  href="http://localhost:3000/Permissions"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -677,7 +684,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://dframe-user-alpha.vercel.app/Help"
+                  href="http://localhost:3000/Help"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -712,12 +719,13 @@ export default function Dashboard() {
         </p>
       </div>
       <div className="logdash">
-        <div>
+        **Click on Ad title to earn Ad Rewards**
+        {/* <div>
           <button onClick={console.log('Logout')}>Logout</button>
         </div>
-        {/* <div> {!nav ? <a
+        <div> {!nav ? <a
                 className="App-link"
-                href="https://dframe-user-alpha.vercel.app"
+                href="http://localhost:3000"
             //rel="noopener noreferrer"
             >
                 Go to dashboard!

@@ -13,8 +13,8 @@ const pattern = '*/10 * * * * *';
 const pattern2 = '0 * * * *';
 const pattern6Hours = '0 */6 * * *';
 
-// 2 mins
-const pattern3 = '*/2 * * * *';
+// 50 seconds
+const pattern3 = '*/50 * * * * *';
 
 /*
 Listen for messages from the page.
@@ -85,7 +85,7 @@ function messagePageScript() {
             const timestampDifference =
               entryObject.properties.timeStamp -
               existingEntry.properties.timeStamp;
-            if (timestampDifference >= 3 * 60 * 60 * 1000) {
+            if (timestampDifference >= 2 * 60 * 60 * 1000) {
               entryArray.push(entryObject);
               console.log('Added entryObject to entryArray:', entryObject);
             } else {
@@ -113,27 +113,24 @@ function messagePageScript() {
 const address = window.localStorage.getItem('userPublicAddress');
 
 // Send the address to the background script
-chrome.runtime.sendMessage({ userAddress: address });
+chrome.runtime.sendMessage({ userPublicAddress: address });
 
 async function messageBackend() {
   console.log('Entered message backend');
   let address = window.localStorage.getItem('userPublicAddress');
   console.log('Testing address', address);
-  chrome.runtime.sendMessage({ userAddress: address });
+  chrome.runtime.sendMessage({ userPublicAddress: address });
 
   let tabData = JSON.parse(localStorage.getItem('entryArray'));
   if (Array.isArray(tabData)) {
-    console.log('Tab data is array');
+    console.log('Tab data is array', tabData);
   } else {
     console.log('Tab Data is NOT ARRAY');
   }
   await axios
-    .post(
-      `https://user-backend-402016.el.r.appspot.com/user/api/user-data/${address}`,
-      {
-        tabData,
-      }
-    )
+    .post(`http://localhost:8080/user/api/user-data/${address}`, {
+      tabData,
+    })
     .then((response) => {
       console.log('Successfull SENT DATA', response);
     })
@@ -184,7 +181,7 @@ async function messageBackend() {
 
 const job = new CronJob(pattern, messagePageScript);
 
-const job2 = new CronJob(pattern3, () => {
+const job2 = new CronJob(pattern6Hours, () => {
   // console.log('Job2 called');
   // chrome.storage.local.get(['user_cred']).then((result) => {
   //   console.log(result);

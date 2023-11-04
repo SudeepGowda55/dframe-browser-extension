@@ -385,18 +385,15 @@ chrome.tabs.onCreated.addListener(function (tab) {
 // Listen for messages from the content script
 // Listen for messages from the content script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('Reached the address listener');
-  if (request.userAddress) {
-    const userAddress = request.userAddress;
-
-    console.log('Address received');
+  if (request.userPublicAddress) {
+    const userPublicAddress = request.userPublicAddress;
 
     // Do something with the user's address (e.g., save it to extension storage)
     // For example, saving it to storage.sync:
-    chrome.storage.sync.set({ userAddress: userAddress }, () => {
+    chrome.storage.sync.set({ userPublicAddress: userPublicAddress }, () => {
       console.log(
         'User address saved in extension storage from background script:',
-        userAddress
+        userPublicAddress
       );
     });
 

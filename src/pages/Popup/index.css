@@ -158,7 +158,11 @@ p {
 .logdash {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
+  font-size: medium;
+  color: gray;
+  padding: 4px;
+  margin-top: 0;
 }
 
 .logdash div {
