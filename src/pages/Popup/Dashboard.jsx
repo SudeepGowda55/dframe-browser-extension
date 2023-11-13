@@ -346,11 +346,9 @@ export default function Dashboard() {
   }
 
   async function fetchAd() {
-    console.log('AD ID IN FETCHAD', adId);
     await axios
       .get(`http://localhost:8080/ad/api/get-particular-ad/${adId}`)
       .then((response) => {
-        console.log('Fetched Ad', response.data);
         console.log('Fetched succesfully', response.data);
         setAdData(response.data);
       })
