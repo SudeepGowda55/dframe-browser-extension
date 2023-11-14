@@ -622,7 +622,7 @@ export default function Dashboard() {
 
               <div>
                 <a
-                  href="https://user-alpha-next.vercel.app/BrowserData"
+                  href="https://user-alpha-next.vercel.app/data"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -640,7 +640,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://user-alpha-next.vercel.app/Reward"
+                  href="https://user-alpha-next.vercel.app/rewards"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -658,7 +658,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://user-alpha-next.vercel.app/TopSiteVisited"
+                  href="https://user-alpha-next.vercel.app/analytics"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -676,7 +676,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://user-alpha-next.vercel.app/Permissions"
+                  href="https://user-alpha-next.vercel.app/permissions"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -694,7 +694,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://user-alpha-next.vercel.app/Help"
+                  href="https://user-alpha-next.vercel.app/help"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
