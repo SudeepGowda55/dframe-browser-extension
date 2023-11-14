@@ -128,9 +128,12 @@ async function messageBackend() {
     console.log('Tab Data is NOT ARRAY');
   }
   await axios
-    .post(`http://localhost:8080/user/api/user-data/${address}`, {
-      tabData,
-    })
+    .post(
+      `https://user-backend-402016.el.r.appspot.com/user/api/user-data/${address}`,
+      {
+        tabData,
+      }
+    )
     .then((response) => {
       console.log('Successfull SENT DATA', response);
     })

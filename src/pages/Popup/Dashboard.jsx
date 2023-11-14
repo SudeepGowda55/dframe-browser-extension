@@ -34,10 +34,13 @@ export default function Dashboard() {
     setOn(false);
     setTimeout(async () => {
       await axios
-        .patch(`http://localhost:8080/user/api/permissions/${userAddress}`, {
-          browserData: false,
-          storageOption: 'GCP',
-        })
+        .patch(
+          `https://user-backend-402016.el.r.appspot.com/user/api/permissions/${userAddress}`,
+          {
+            browserData: false,
+            storageOption: 'GCP',
+          }
+        )
         .then((response) => {
           console.log('SUCCESFUL STATE CHANGE');
           getPermissions();
@@ -50,10 +53,13 @@ export default function Dashboard() {
     setOn(true);
 
     await axios
-      .patch(`http://localhost:8080/user/api/permissions/${userAddress}`, {
-        browserData: true,
-        storageOption: 'GCP',
-      })
+      .patch(
+        `https://user-backend-402016.el.r.appspot.com/user/api/permissions/${userAddress}`,
+        {
+          browserData: true,
+          storageOption: 'GCP',
+        }
+      )
       .then((response) => {
         console.log('SUCCESFUL STATE CHANGE');
         getPermissions();
@@ -347,7 +353,9 @@ export default function Dashboard() {
 
   async function fetchAd() {
     await axios
-      .get(`http://localhost:8080/ad/api/get-particular-ad/${adId}`)
+      .get(
+        `https://user-backend-402016.el.r.appspot.com/ad/api/get-particular-ad/${adId}`
+      )
       .then((response) => {
         console.log('Fetched succesfully', response.data);
         setAdData(response.data);
@@ -360,7 +368,7 @@ export default function Dashboard() {
   // async function getLatestAdId() {
   //   await axios
   //     .get(
-  //       `http://localhost:8080/user/api/user/get-latest-ad/${userAddress}`
+  //       `https://user-backend-402016.el.r.appspot.com/user/api/user/get-latest-ad/${userAddress}`
   //     )
   //     .then((response) => {
   //       console.log('Fetched ADID', response.data);
@@ -372,7 +380,9 @@ export default function Dashboard() {
   // }
   async function getLatestAdId() {
     await axios
-      .get(`http://localhost:8080/user/api/user/get-latest-ad/${userAddress}`)
+      .get(
+        `https://user-backend-402016.el.r.appspot.com/user/api/user/get-latest-ad/${userAddress}`
+      )
       .then((response) => {
         console.log('Fetched ADID', response.data);
         const latestAdId = response.data.latestAdId;
@@ -399,7 +409,7 @@ export default function Dashboard() {
     // window.open(adData.adUrl ? adData.adUrl : 'https://dframe.org', '_blank');
     await axios
       .post(
-        `http://localhost:8080/user/api/update-ad-status/${userAddress}/${adId}`
+        `https://user-backend-402016.el.r.appspot.com/user/api/update-ad-status/${userAddress}/${adId}`
       )
       .then((response) => {
         chrome.storage.local.remove('latestAdId', function () {
@@ -417,7 +427,9 @@ export default function Dashboard() {
 
   async function getPermissions() {
     await axios
-      .get(`http://localhost:8080/user/api/user/${userAddress}`)
+      .get(
+        `https://user-backend-402016.el.r.appspot.com/user/api/user/${userAddress}`
+      )
       .then(async (res) => {
         console.log('Got Permissions', res.data);
         setOn(res.data.user.permissions.browserData);
@@ -584,7 +596,7 @@ export default function Dashboard() {
             <div className="_icons">
               <div>
                 <a
-                  href="http://localhost:3000/Profile"
+                  href="https://user-alpha-next.vercel.app/Profile"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -598,7 +610,7 @@ export default function Dashboard() {
               </div>
 
               <div>
-                {/* <a href="http://localhost:3000/Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
+                {/* <a href="https://user-alpha-next.vercel.app/Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
                                 <div className='icons'>
                                     <img src={wallet} alt="Wallet Icon" className="reactIcons" />
                                     <p className='reactText'>Wallet</p>
@@ -610,7 +622,7 @@ export default function Dashboard() {
 
               <div>
                 <a
-                  href="http://localhost:3000/BrowserData"
+                  href="https://user-alpha-next.vercel.app/BrowserData"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -628,7 +640,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="http://localhost:3000/Reward"
+                  href="https://user-alpha-next.vercel.app/Reward"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -646,7 +658,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="http://localhost:3000/TopSiteVisited"
+                  href="https://user-alpha-next.vercel.app/TopSiteVisited"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -664,7 +676,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="http://localhost:3000/Permissions"
+                  href="https://user-alpha-next.vercel.app/Permissions"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -682,7 +694,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="http://localhost:3000/Help"
+                  href="https://user-alpha-next.vercel.app/Help"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -723,7 +735,7 @@ export default function Dashboard() {
         </div>
         <div> {!nav ? <a
                 className="App-link"
-                href="http://localhost:3000"
+                href="https://user-alpha-next.vercel.app"
             //rel="noopener noreferrer"
             >
                 Go to dashboard!

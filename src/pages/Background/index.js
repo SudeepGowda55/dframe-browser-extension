@@ -242,7 +242,7 @@ var blocked_sites = [
   'https://dframe-user-alpha.vercel.app',
   'https://phone-b5688.firebaseapp.com',
   'http://localhost:3001',
-  'http://localhost:3000',
+  'https://user-alpha-next.vercel.app',
   'https://dframe-client-alpha.vercel.app',
 ];
 

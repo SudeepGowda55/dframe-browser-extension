@@ -13,7 +13,7 @@ const Login = () => {
         <h2>Welcome to Dframe</h2>
       </header>
       <a
-        href="http://localhost:3000"
+        href="https://user-alpha-next.vercel.app"
         rel="noopener noreferrer"
         className="App-link"
         target="_blank"
