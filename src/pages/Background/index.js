@@ -245,6 +245,9 @@ var blocked_sites = [
   'https://user-alpha-next.vercel.app',
   'http://localhost:3000',
   'https://dframe-client-alpha.vercel.app',
+  'https://user.dframe.org',
+  'https://client.dframe.org',
+  'https://dframe.org',
 ];
 
 /*

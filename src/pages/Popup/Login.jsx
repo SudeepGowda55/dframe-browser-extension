@@ -2,8 +2,6 @@ import React from 'react';
 import logo from '../../assets/img/dframe.png';
 // import Greetings from '../../containers/Greetings/Greetings';
 import './Popup.css';
-import { useEffect } from 'react';
-import Web3 from 'web3';
 
 const Login = () => {
   return (
@@ -13,7 +11,7 @@ const Login = () => {
         <h2>Welcome to Dframe</h2>
       </header>
       <a
-        href="https://user-alpha-next.vercel.app"
+        href="https://user.dframe.org"
         rel="noopener noreferrer"
         className="App-link"
         target="_blank"

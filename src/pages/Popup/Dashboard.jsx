@@ -533,7 +533,7 @@ export default function Dashboard() {
             textAlign: 'center',
           }}
         >
-          {adData.adType == 'Image' ? (
+          {adData.adType == 'image' ? (
             <img
               src={
                 adData.image
@@ -596,7 +596,7 @@ export default function Dashboard() {
             <div className="_icons">
               <div>
                 <a
-                  href="https://user-alpha-next.vercel.app/Profile"
+                  href="https://user.dframe.org/profile"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -610,7 +610,7 @@ export default function Dashboard() {
               </div>
 
               <div>
-                {/* <a href="https://user-alpha-next.vercel.app/Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
+                {/* <a href="https://user.dframe.org/Wallet" rel="noopener noreferrer" style={{ textDecoration: 'none' }} target="_blank">
                                 <div className='icons'>
                                     <img src={wallet} alt="Wallet Icon" className="reactIcons" />
                                     <p className='reactText'>Wallet</p>
@@ -622,7 +622,7 @@ export default function Dashboard() {
 
               <div>
                 <a
-                  href="https://user-alpha-next.vercel.app/data"
+                  href="https://user.dframe.org/data"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -640,7 +640,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://user-alpha-next.vercel.app/rewards"
+                  href="https://user.dframe.org/rewards"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -658,7 +658,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://user-alpha-next.vercel.app/analytics"
+                  href="https://user.dframe.org/analytics"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -676,7 +676,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://user-alpha-next.vercel.app/permissions"
+                  href="https://user.dframe.org/permissions"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -694,7 +694,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <a
-                  href="https://user-alpha-next.vercel.app/help"
+                  href="https://user.dframe.org/help"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -735,7 +735,7 @@ export default function Dashboard() {
         </div>
         <div> {!nav ? <a
                 className="App-link"
-                href="https://user-alpha-next.vercel.app"
+                href="https://user.dframe.org"
             //rel="noopener noreferrer"
             >
                 Go to dashboard!

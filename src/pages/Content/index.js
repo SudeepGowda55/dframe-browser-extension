@@ -12,6 +12,7 @@ const pattern = '*/10 * * * * *';
 // trigger every 60 minutes
 const pattern2 = '0 * * * *';
 const pattern6Hours = '0 */6 * * *';
+const pattern2Mins = '*/2 * * * *';
 
 // 50 seconds
 const pattern3 = '*/50 * * * * *';
@@ -55,6 +56,8 @@ function messagePageScript() {
       });
       // Get the entryArray from localStorage
       let entryArray = JSON.parse(localStorage.getItem('entryArray')) || [];
+
+      console.log('entryArray is', entryArray);
 
       // Loop through the data from mod_response
       for (let [key, value] of Object.entries(mod_response)) {
@@ -121,7 +124,8 @@ async function messageBackend() {
   console.log('Testing address', address);
   chrome.runtime.sendMessage({ userPublicAddress: address });
 
-  let tabData = JSON.parse(localStorage.getItem('entryArray'));
+  let tabData = JSON.parse(localStorage.getItem('entryArray')) || [];
+  console.log('tabDatqa is', tabData);
   if (Array.isArray(tabData)) {
     console.log('Tab data is array', tabData);
   } else {
@@ -148,7 +152,7 @@ async function messageBackend() {
   //     let { url, date, timestamp } = data;
 
   //     // Make API call
-  //     let response = await fetch('https://dframe-user-alpha.vercel.app/api/users/userdata', {
+  //     let response = await fetch('https://user.dframe.org/api/users/userdata', {
   //       method: 'POST',
   //       body: JSON.stringify({
   //         publicAddress: walletAddress,
